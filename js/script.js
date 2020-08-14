@@ -60,80 +60,66 @@ var switchMenuToActive = function () {
   }
 };
 
-
 // On page load (before images or CSS)
 document.addEventListener("DOMContentLoaded", function (event) {
-  document.getElementById("logo-img").addEventListener("click", function(){
-    buildAndShowHomeHTML(homeHtmlUrl)
-  });
 
+// TODO: STEP 0: Look over the code from
+// *** start ***
+// to
+// *** finish ***
+// below.
+// We changed this code to retrieve all categories from the server instead of
+// simply requesting home HTML snippet. We now also have another function
+// called buildAndShowHomeHTML that will receive all the categories from the server
+// and process them: choose random category, retrieve home HTML snippet, insert that
+// random category into the home HTML snippet, and then insert that snippet into our
+// main page (index.html).
+//
+// TODO: STEP 1: Substitute [...] below with the *value* of the function buildAndShowHomeHTML,
+// so it can be called when server responds with the categories data.
 
+// *** start ***
+// On first load, show home view
 showLoading("#main-content");
 $ajaxUtils.sendGetRequest(
   allCategoriesUrl,
-    buildAndShowHomeHTML,
-  // [...], // ***** <---- TODO: STEP 1: Substitute [...] ******
-  true); // Explicitly setting the flag to get JSON from server processed into an object literal
+  buildAndShowHomeHTML, // ***** <---- TODO: STEP 1: Substitute [...] ******
+  true); // Explicitely setting the flag to get JSON from server processed into an object literal
 });
+// *** finish **
 
 
+// Builds HTML for the home page based on categories array
+// returned from the server.
 function buildAndShowHomeHTML (categories) {
-      $ajaxUtils.sendGetRequest(
-        homeHtmlUrl,
-        function (homeHtml) {
-          var chosenCategoryShortName = chooseRandomCategory(categories)
 
-          insertHtml("#main-content", homeHtml);
-        },
- 
+  // Load home snippet page
+  $ajaxUtils.sendGetRequest(
+    homeHtmlUrl,
+    function (homeHtml) {
+
+      
+      var chosenCategoryShortName = chooseRandomCategory(categories).short_name;
+
+      chosenCategoryShortName = "'" + chosenCategoryShortName + "'";
+      var homeHtmlToInsertIntoMainPage = insertProperty(homeHtml, "randomCategoryShortName", chosenCategoryShortName);
+
+
+      insertHtml('#main-content', homeHtmlToInsertIntoMainPage);
+
+    },
     false); // False here because we are getting just regular HTML from the server, so no need to process JSON.
 }
+
 
 // Given array of category objects, returns a random category object.
 function chooseRandomCategory (categories) {
   // Choose a random index into the array (from 0 inclusively until array length (exclusively))
-  // var randomArrayIndex = Math.floor(Math.random() * categories.length);
+  var randomArrayIndex = Math.floor(Math.random() * categories.length);
 
-  // // return category object with that randomArrayIndex
-  // return categories[randomArrayIndex];
-
-  $ajaxUtils.sendGetRequest(
-        categories,
-        function (responseText) {
-          const randomArrayIndex = Math.floor(Math.random() * responseText.length);
-          return responseText[randomArrayIndex]['short_name']
-          
-        })
+  // return category object with that randomArrayIndex
+  return categories[randomArrayIndex];
 }
-
-
-// async function loadd() {
-//     const data = await fetch(allCategoriesUrl, {
-//         method: 'GET',
-//         headers: {
-//           'Content-type': 'Application/json'
-//         },
-//         mode: "cors"
-//     });
-//     const response = await data.json();
-//     const res = response
-//     const randomArrayIndex = Math.floor(Math.random() * res.length);
-//     const rad = res[randomArrayIndex]['short_name']
-//     return rad
-// }
-
-
-// function loadd() {
-//   $ajaxUtils.sendGetRequest(
-//     allCategoriesUrl,
-//     function (responseText) {
-//       const randomArrayIndex = Math.floor(Math.random() * responseText.length);
-//       const rad = responseText[randomArrayIndex]['short_name']
-//       return rad
-      
-//     })
-// }
-
 
 
 // Load the menu categories view
@@ -144,7 +130,7 @@ dc.loadMenuCategories = function () {
     buildAndShowCategoriesHTML);
 };
 
-// chooseRandomCategory(categoryShort)
+
 // Load the menu items view
 // 'categoryShort' is a short_name for a category
 dc.loadMenuItems = function (categoryShort) {
